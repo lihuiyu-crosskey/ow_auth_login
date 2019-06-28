@@ -1,0 +1,76 @@
+--------------------------------------------------------------------------------
+2018-08-24 13:51:29,233 ERROR in app [C:\Python27\lib\site-packages\flask\app.py:1761]:
+Exception on /auth_login/login [POST]
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1816, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1831, in finalize_request
+    response = self.make_response(rv)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1957, in make_response
+    'The view function did not return a valid response. The'
+TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
+--------------------------------------------------------------------------------
+2018-08-24 13:51:32,470 ERROR in app [C:\Python27\lib\site-packages\flask\app.py:1761]:
+Exception on /auth_login/login [POST]
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1816, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1831, in finalize_request
+    response = self.make_response(rv)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1957, in make_response
+    'The view function did not return a valid response. The'
+TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
+--------------------------------------------------------------------------------
+2019-01-22 15:11:02,849 ERROR in auth_web [F:\git_zt\auth_login\auth_login\zt_auth_login\app\controllers\auth_web.py:18]:
+'passwords'
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+2019-01-22 15:12:15,463 ERROR in app [C:\Python27\lib\site-packages\flask\app.py:1761]:
+Exception on /auth_login/login [POST]
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1816, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1831, in finalize_request
+    response = self.make_response(rv)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1957, in make_response
+    'The view function did not return a valid response. The'
+TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
+--------------------------------------------------------------------------------
+2019-01-29 15:55:35,230 ERROR in auth_server_ser [F:\git_zt\auth_login\auth_login\zt_auth_login\app\services\auth_server_ser.py:105]:
+'NoneType' object has no attribute 'id'
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+2019-01-29 15:55:45,344 ERROR in auth_server_ser [F:\git_zt\auth_login\auth_login\zt_auth_login\app\services\auth_server_ser.py:105]:
+'NoneType' object has no attribute 'id'
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+2019-06-28 10:12:31,147 ERROR in app [C:\Python27\lib\site-packages\flask\app.py:1761]:
+Exception on /auth_login/login/interface_categorys/powers/add [POST]
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1811, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 2087, in preprocess_request
+    rv = func()
+  File "F:/git_zt/auth_login/auth_login/zt_auth_login/manage.py", line 45, in before
+    uid = request.get_json().get("userId", "")
+AttributeError: 'list' object has no attribute 'get'
+--------------------------------------------------------------------------------
+2019-06-28 10:13:23,259 ERROR in auth_web [F:\git_zt\auth_login\auth_login\zt_auth_login\app\controllers\auth_web.py:381]:
+400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+--------------------------------------------------------------------------------
