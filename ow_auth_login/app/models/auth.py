@@ -1,5 +1,5 @@
 # coding: utf-8
-from . import db
+from manage import db
 
 
 class TabMenu(db.Model):

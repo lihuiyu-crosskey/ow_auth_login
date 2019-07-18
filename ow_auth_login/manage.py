@@ -8,15 +8,32 @@ import os
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
 from flask import Flask,request
-from app.models import db
-# from app.models import mail
-from config import config,port
-from app import blue as main_blueprint
-from app import beforeLogin,server
+from config import blue as main_blueprint
+from config import beforeLogin,server
 from plugins import http_filter
 import logging
-import config as configs
 import sys
+from flask_sqlalchemy import SQLAlchemy
+import redis
+import config
+from flask_mail import Mail
+import torndb
+
+
+
+db = SQLAlchemy()
+
+# mail=Mail()
+
+red = redis.StrictRedis(host=config.redis_set['host'], port=config.redis_set['port'], db=config.redis_set['db'])
+red_access_token = redis.StrictRedis(host=config.redis_access_token['host'], port=config.redis_access_token['port'], db=config.redis_access_token['db'])
+red_refresh_token = redis.StrictRedis(host=config.redis_refresh_token['host'], port=config.redis_refresh_token['port'], db=config.redis_refresh_token['db'])
+red_user_info = redis.StrictRedis(host=config.redis_user_info['host'], port=config.redis_user_info['port'], db=config.redis_user_info['db'])
+
+cur=torndb.Connection(config.db_set['host']+":"+config.db_set['port'],config.db_set['db'],config.db_set['name'],config.db_set['password'],100,10)
+
+
+
 
 def file_handle():
     """
@@ -36,7 +53,7 @@ def file_handle():
 
 @main_blueprint.before_request
 def before():
-    request_url = configs.request_url
+    request_url = config.request_url
     url = request.base_url
     header = request.headers
     uid = ''
@@ -51,13 +68,12 @@ def before():
         return res
 
 
-def create_app(config_name):
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
+    app.config.from_mapping(config.sqlalchemy_set)
+    app.debug=False
     db.init_app(app)
     app.logger.addHandler(file_handle())
-    # mysql.init_app(app)
     # mail.init_app(app)
     reload(sys)
     sys.setdefaultencoding('utf8')
@@ -67,8 +83,7 @@ def create_app(config_name):
     return app
 
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-
+app = create_app()
 manager = Manager(app)
 migrate = Migrate(app, db)
 
@@ -77,7 +92,7 @@ def make_shell_context():
     return dict(app=app, db=db)
 manager.add_command("shell",Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
-manager.add_command("runserver", Server('0.0.0.0', port=port))
+manager.add_command("runserver", Server('0.0.0.0', port=config.port))
 
 if __name__ == '__main__':
     manager.run()
