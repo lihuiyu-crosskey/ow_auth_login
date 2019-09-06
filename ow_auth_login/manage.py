@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """
 Module Description:
-Date: 2017-5-3
+Date: 2019-7-19
 Author: lihuiyu
 """
 import os
@@ -18,6 +18,7 @@ import redis
 import config
 from flask_mail import Mail
 import torndb
+from flask_cors import *
 
 
 
@@ -76,6 +77,7 @@ def create_app():
     app.logger.addHandler(file_handle())
     # mail.init_app(app)
     reload(sys)
+    CORS(app, supports_credentials=True)
     sys.setdefaultencoding('utf8')
     app.register_blueprint(main_blueprint)
     app.register_blueprint(beforeLogin)
