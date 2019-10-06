@@ -13,7 +13,6 @@ import config
 from flask import current_app
 from random import Random
 import string, random
-from urllib import quote,unquote
 import manage
 
 
@@ -58,7 +57,7 @@ def token_login(data):
 
         res={"access_token":access_token,"refresh_token":refresh_token,"expires":expires}
         return res
-    except Exception,e:
+    except Exception as e:
         current_app.logger.error(str(e))
         return {}
 
@@ -83,31 +82,31 @@ def gen_token(type,data,TIMEOUT):
             type="refresh"
         header={"typ":"JWT","token_type":type}
         header=encode_token_bytes(str(header))
-        print "header:"+header
+        # print "header:"+header
         data = data.copy()
         user_id=data["user_id"]
         if "expires" not in data:
             expires= time.time() + TIMEOUT
             data["expires"] = expires
-            print "expires:"+str(expires)
+            # print "expires:"+str(expires)
         payload = json.dumps(data).encode("utf8")
         # 生成签名
         payload=encode_token_bytes(payload)
-        print "payload:"+payload
+        # print "payload:"+payload
 
         s_key=gen_salt(6)
         s_salt=gen_salt(6)
-        print "key:"+s_key
-        print "salt:"+s_salt
+        # print "key:"+s_key
+        # print "salt:"+s_salt
         signer=_get_signature(header+payload+s_salt+s_key)
 
-        print "sign:"+signer
+        # print "sign:"+signer
         token=header+"."+payload+"."+signer
-        print "token:"+token
+        # print "token:"+token
         info={"user_id":user_id,"token":token,"key":s_key,"salt":s_salt,"expires":expires}
         # info=str(info)
         return info
-    except Exception,e:
+    except Exception as e:
         current_app.logger.error(str(e))
         return {}
 

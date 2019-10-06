@@ -16,7 +16,6 @@ import sys
 from flask_sqlalchemy import SQLAlchemy
 import redis
 import config
-from flask_mail import Mail
 import torndb
 from flask_cors import *
 
@@ -61,7 +60,7 @@ def before():
     body = request.get_json(silent=True)
     if body:
         uid = request.get_json().get("userId", "")
-        print uid
+        print (uid)
     res = http_filter.before_request(request_url, url, uid, header)
     if str(res) == 'true':
         pass
@@ -76,9 +75,9 @@ def create_app():
     db.init_app(app)
     app.logger.addHandler(file_handle())
     # mail.init_app(app)
-    reload(sys)
+    # reload(sys)
     CORS(app, supports_credentials=True)
-    sys.setdefaultencoding('utf8')
+    # sys.setdefaultencoding('utf8')
     app.register_blueprint(main_blueprint)
     app.register_blueprint(beforeLogin)
     app.register_blueprint(server)
