@@ -1,7 +1,7 @@
 #-*- coding: UTF-8 -*-
-from app.services import auth_web_ser,auth_server_ser
+from app.services import web_ser,server_ser
 from flask import jsonify, request, redirect, make_response,Flask
-from config import server
+from app import server
 from ..Messages.mess_handler import Message
 from datetime import datetime
 from flask import current_app
@@ -11,7 +11,7 @@ from flask import current_app
 def get_username_by_id():
     try:
         req=request.get_json()
-        return auth_server_ser.get_username_by_id(req['ids'])
+        return server_ser.get_username_by_id(req['ids'])
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400,"参数错误","")
@@ -21,7 +21,7 @@ def get_username_by_id():
 def add_power():
     try:
         req = request.get_json()
-        return auth_server_ser.add_power(req['name'],req['url'],req['type'],req['role_id'])
+        return server_ser.add_power(req['name'], req['url'], req['type'], req['role_id'])
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400, "参数错误", "")
@@ -30,7 +30,7 @@ def add_power():
 def delete_power_by_url_type():
     try:
         req = request.get_json()
-        return auth_server_ser.delete_power_by_url_type(req['url'],req['type'])
+        return server_ser.delete_power_by_url_type(req['url'], req['type'])
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400, "参数错误", "")
@@ -40,7 +40,7 @@ def delete_power_by_url_type():
 def edit_power_name_by_url_type():
     try:
         req = request.get_json()
-        return auth_server_ser.edit_pwoer_name_by_url_type(req['name'],req['url'],req['type'])
+        return server_ser.edit_pwoer_name_by_url_type(req['name'], req['url'], req['type'])
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400, "参数错误", "")
@@ -50,7 +50,7 @@ def edit_power_name_by_url_type():
 def add_role_power():
     try:
         req=request.get_json()
-        return auth_web_ser.add_role_power(req['role_id'],req['power_ids'])
+        return web_ser.add_role_power(req['role_id'], req['power_ids'])
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400, "参数错误", "")
@@ -60,7 +60,7 @@ def add_role_power():
 def add_role_device():
     try:
         req = request.get_json()
-        return auth_server_ser.add_device(req['role_id'], req['device_id'])
+        return server_ser.add_device(req['role_id'], req['device_id'])
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400, "参数错误", "")

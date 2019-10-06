@@ -5,10 +5,7 @@ Date: 2017-5-3
 Author: lihuiyu
 """
 import os
-from flask import Blueprint
-blue = Blueprint('controllers', __name__,url_prefix='/auth_login')
-beforeLogin=Blueprint('beforeLogin', __name__,url_prefix='/auth_login')
-server=Blueprint('server', __name__,url_prefix='/auth_login')
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 # check=os.getenv('FLASK_CONFIG')

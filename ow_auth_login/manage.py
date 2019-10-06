@@ -8,8 +8,8 @@ import os
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
 from flask import Flask,request
-from config import blue as main_blueprint
-from config import beforeLogin,server
+from app import blue as main_blueprint
+from app import beforeLogin,server
 from plugins import http_filter
 import logging
 import sys
@@ -18,6 +18,8 @@ import redis
 import config
 import torndb
 from flask_cors import *
+
+
 
 
 
@@ -40,7 +42,7 @@ def file_handle():
     生成一个log handler 用于将日志记录到文件中
     :return:
     """
-    handle = logging.FileHandler(os.path.join(os.path.dirname(__file__), 'logs/auth_login.log'))
+    handle = logging.FileHandler(os.path.join(os.path.dirname(__file__), 'logs/bug_log.log'))
     formatter = logging.Formatter(
         '-' * 80 + '\n' +
         '%(asctime)s %(levelname)s in %(module)s [%(pathname)s:%(lineno)d]:\n' +
@@ -68,32 +70,18 @@ def before():
         return res
 
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_mapping(config.sqlalchemy_set)
-    app.debug=False
-    db.init_app(app)
-    app.logger.addHandler(file_handle())
-    # mail.init_app(app)
-    # reload(sys)
-    CORS(app, supports_credentials=True)
-    # sys.setdefaultencoding('utf8')
-    app.register_blueprint(main_blueprint)
-    app.register_blueprint(beforeLogin)
-    app.register_blueprint(server)
-    return app
 
+app = Flask(__name__)
+app.config.from_mapping(config.sqlalchemy_set)
+app.debug=False
+db.init_app(app)
+app.logger.addHandler(file_handle())
+CORS(app, supports_credentials=True)
+app.register_blueprint(main_blueprint)
+app.register_blueprint(beforeLogin)
+app.register_blueprint(server)
+print(type(app.url_map))
+print(app.url_map.__dict__)
+for i in app.url_map.__dict__['_rules']:
+   print(i)
 
-app = create_app()
-manager = Manager(app)
-migrate = Migrate(app, db)
-
-
-def make_shell_context():
-    return dict(app=app, db=db)
-manager.add_command("shell",Shell(make_context=make_shell_context))
-manager.add_command('db', MigrateCommand)
-manager.add_command("runserver", Server('0.0.0.0', port=config.port))
-
-if __name__ == '__main__':
-    manager.run()
