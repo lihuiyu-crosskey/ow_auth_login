@@ -8,8 +8,7 @@ import os
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
 from flask import Flask,request
-from app import blue as main_blueprint
-from app import beforeLogin,server
+from app import beforeLogin,server,logged
 from plugins import http_filter
 import logging
 import sys
@@ -18,9 +17,6 @@ import redis
 import config
 import torndb
 from flask_cors import *
-
-
-
 
 
 db = SQLAlchemy()
@@ -53,7 +49,7 @@ def file_handle():
     return handle
 
 
-@main_blueprint.before_request
+@logged.before_request
 def before():
     request_url = config.request_url
     url = request.base_url
@@ -77,11 +73,17 @@ app.debug=False
 db.init_app(app)
 app.logger.addHandler(file_handle())
 CORS(app, supports_credentials=True)
-app.register_blueprint(main_blueprint)
+app.register_blueprint(logged)
 app.register_blueprint(beforeLogin)
 app.register_blueprint(server)
-print(type(app.url_map))
-print(app.url_map.__dict__)
-for i in app.url_map.__dict__['_rules']:
-   print(i)
+for i,val in enumerate(app.url_map._rules):
+    # print(i)
+    print(val)
+    # print(val.endpoint)
+    test=str(val.endpoint).split('.')
+    if len(test)>1:
+
+        print(test[1])
+
+
 

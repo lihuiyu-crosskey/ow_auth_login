@@ -1,14 +1,20 @@
 #-*- coding: UTF-8 -*-
 from app.services import web_ser
 from flask import jsonify, request, redirect, make_response,Flask,url_for
-from app import blue,beforeLogin
+from app import logged,beforeLogin
 from ..Messages.mess_handler import Message
 from datetime import datetime
 from flask import current_app
+# from manage import get_route
+from functools import wraps
 
 
 
-@beforeLogin.route('/test/test', methods=['POST'])
+
+
+
+
+@beforeLogin.route('/test/test', methods=['POST'],endpoint='测试')
 def get_username_by_ids():
     try:
         req=request.get_json()
