@@ -49,8 +49,8 @@ def before_request(request_url,url,uid,header):
             return "true"
         else:
             return jsonify(res)
-    except Exception,e:
-        print e
+    except Exception as e:
+        # print e
         return json_mess(55,'header参数错误','')
 
 
