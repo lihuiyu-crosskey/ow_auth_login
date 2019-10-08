@@ -8,8 +8,7 @@ import os
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
 from flask import Flask,request
-from app import blue as main_blueprint
-from app import beforeLogin,server
+from app import beforeLogin,server,logged
 from plugins import http_filter
 import logging
 import sys
@@ -21,9 +20,9 @@ from flask_mail import Mail
 import mydb
 from flask_cors import *
 
+from flask_cors import *
 
 
-# db = SQLAlchemy()
 
 # mail=Mail()
 
@@ -51,7 +50,7 @@ def file_handle():
     return handle
 
 
-@main_blueprint.before_request
+@logged.before_request
 def before():
     request_url = config.request_url
     url = request.base_url
@@ -60,7 +59,9 @@ def before():
     body = request.get_json(silent=True)
     if body:
         uid = request.get_json().get("userId", "")
-        # print uid
+
+        print (uid)
+
     res = http_filter.before_request(request_url, url, uid, header)
     if str(res) == 'true':
         pass
@@ -69,16 +70,16 @@ def before():
 
 
 
+
+
+
 app = Flask(__name__)
 app.config.from_mapping(config.sqlalchemy_set)
 app.debug=False
 db.init_app(app)
 app.logger.addHandler(file_handle())
-# mail.init_app(app)
-# reload(sys)
 CORS(app, supports_credentials=True)
-# sys.setdefaultencoding('utf8')
-app.register_blueprint(main_blueprint)
+app.register_blueprint(logged)
 app.register_blueprint(beforeLogin)
 app.register_blueprint(server)
 for i,val in enumerate(app.url_map._rules):
@@ -89,4 +90,7 @@ for i,val in enumerate(app.url_map._rules):
     if len(test)>1:
 
         print(test[1])
+
+
+
 

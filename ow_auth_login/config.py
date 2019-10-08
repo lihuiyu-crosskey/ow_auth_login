@@ -8,8 +8,8 @@ import os
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-check=os.getenv('FLASK_CONFIG')
-# check='test'
+# check=os.getenv('FLASK_CONFIG')
+check='online'
 if check=='local':
     access_token_expire = 3600
     refresh_token_expire = 2592000
@@ -27,8 +27,8 @@ elif check=='online':
     auth_verify_url="http://192.168.1.202:3306"
     sms_url = "http://ysms.game2palm.com:8899/smsAccept/sendSms.action"
     request_url = auth_verify_url+"/auth_verify/power/verify"
-    db_set = {'name': 'root', 'password': 'Wushuang2009!', 'host': '149.129.61.116', 'port': '3306',
-              'db': 'auth_online'}
+    db_set = {'name': 'root', 'password': 'Admin123456!', 'host': '39.100.138.101', 'port': '3306',
+              'db': 'ow_auth'}
     redis_set = {'host': '149.129.61.116', 'port': '6179', 'password': 'admin123!', 'db': '0'}
 
 elif check=='test':

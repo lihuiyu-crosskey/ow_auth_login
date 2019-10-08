@@ -41,8 +41,10 @@ class Message(object):
             }
             post_data = json.dumps(post_data)
         try:
-            response = requests.post(url, data=post_data, headers=headers)
-            # print response
+
+            response = requests.post(url, data=post_data, headers=headers,time_out=10)
+            print (response)
+
         except requests.exceptions.ConnectTimeout:
             # return "time out"
             return error
