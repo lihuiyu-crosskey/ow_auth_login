@@ -19,6 +19,7 @@ import manage
 def test():
     return 1
 
+def sds
 
 def login(platform,mobile,password):
     try:
