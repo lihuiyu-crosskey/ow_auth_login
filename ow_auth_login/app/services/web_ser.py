@@ -16,6 +16,10 @@ import string, random
 import manage
 
 
+def test():
+    return 1
+
+
 def login(platform,mobile,password):
     try:
         sql="select * from tab_user where mobile=%s and status!=2 limit 1"
