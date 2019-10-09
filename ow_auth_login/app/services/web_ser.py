@@ -16,6 +16,49 @@ import string, random
 import manage
 
 
+def login(platform,mobile,password):
+    try:
+        sql="select * from tab_user where mobile=%s and status!=2 limit 1"
+        data=manage.cur.get(sql,str(mobile))
+        if data:
+            if int(data['status'])==1:
+                return Message.json_mess(14, "账户已经被封", "")
+            # 密码加盐加密
+            word = str(password) + str(data['salt'])
+            word = hashlib.md5(word).hexdigest()
+            # 密码验证
+            if word == str(data['password']):
+                role_type = 0
+                if int(data['role_id']) > 0:
+                    sql="select * from tab_role where id=%s and status!=2 limit 1"
+                    role=manage.cur.get(sql,data['role_id'])
+                    role_type =role['type']
+
+                platform_type=''
+                if platform=='iOS' or platform=='Android':
+                    platform_type='mobile'
+                else:
+                    platform_type='web'
+                # 组合token的body
+                self = {"user_id": data['id'], 'role_id': data['role_id'], 'mobile': data['mobile'],
+                        'status': data['status'], 'role_type': role_type,'platform_type':platform_type}
+                # 生产token
+                res = token_login(dict(self))
+                res = res.copy()
+                access_token = res["access_token"]
+                refresh_token = res["refresh_token"]
+                expires = res["expires"]
+                token = {'access_token': access_token, 'refresh_token': refresh_token, 'expires': expires}
+                return Message.json_mess(0, '登陆成功', token)
+            else:
+                return Message.json_mess(18, '密码错误', '')
+        else:
+            return Message.json_mess(15, '账户不存在', '')
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(12, '登录失败', '')
+
 
 
 
@@ -49,10 +92,6 @@ def token_login(data):
         info=str(info)
         if int(user_id)>0:
             manage.red.set(user_id,info)
-            manage.red_access_token.set(user_id,access_token)
-            manage.red_access_token.expire(user_id,config.access_token_expire)
-            manage.red_refresh_token.set(user_id,refresh_token)
-            manage.red_refresh_token.expire(user_id,config.refresh_token_expire)
 
 
         res={"access_token":access_token,"refresh_token":refresh_token,"expires":expires}
