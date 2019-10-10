@@ -71,3 +71,13 @@ def find_password():
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400,"参数错误","")
+
+
+@beforeLogin.route('/access_token/get', methods=['POST'],endpoint='用refresh_token换取access_token')
+def refresh_token():
+    try:
+        req=request.get_json()
+        return web_ser.refresh_token(req['refresh_token'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")

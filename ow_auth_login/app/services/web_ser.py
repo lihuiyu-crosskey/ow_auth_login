@@ -218,6 +218,90 @@ def mobile_reg(password,mobile,nick_name,user_img,code):
     finally:
         manage.cur.close()
 
+#用refresh_token换取access_token
+def refresh_token(token):
+    try:
+        tokens=str(token)
+        token = str(token)
+        token = token.split('.')
+        header = token[0]
+        payload = token[1]
+        header_c=decode_token_bytes(header)
+        header_c=ast.literal_eval(header_c)
+        header_c=json.dumps(header_c)
+        data = json.loads(header_c.decode("utf8"))
+        type = data['token_type']
+        if str(type) != "refresh":
+            return Message.json_mess(4,'token类型错误','')
+        payload_d = decode_token_bytes(payload)
+        data = json.loads(payload_d.decode("utf8"))
+        user_id = data.get('user_id')
+        platform_type=data['platform_type']
+        refresh_token=tokens
+        if platform_type=='mobile':
+            orgin_refresh_token=manage.red.get('mobile_refresh_token_' + str(user_id))
+        else:
+            orgin_refresh_token = manage.red.get('web_refresh_token_' + str(user_id))
+        if orgin_refresh_token:
+            if orgin_refresh_token==refresh_token:
+                pass
+            else:
+                return Message.json_mess(20, 'refresh_token签名验证错误', '')
+        else:
+            return Message.json_mess(1, 'token过期', '')
+
+        if int(user_id) > 0:
+            info = manage.red.get('user_token_info_' + str(user_id))
+        else:
+            return  Message.json_mess(20, '用户id不合法', '')
+        info = ast.literal_eval(info)
+        info = json.dumps(info)
+        info = json.loads(info)
+        refresh_key=info["refresh_key"]
+        refresh_salt=info["refresh_salt"]
+
+        sql = "select * from tab_user where id=%s and status!=2 limit 1"
+        data = manage.cur.get(sql, str(user_id))
+        if data:
+            if int(data['status']) == 1:
+                return Message.json_mess(14, "账户已经被封", "")
+
+        self = {"user_id": user_id, 'role_id': data['role_id'], 'nick_name': data['nick_name'], 'mobile': data['mobile'],
+                'status': data['status']}
+
+        a = gen_token(0, dict(self), config.access_token_expire)
+        a = a.copy()
+        user_id = a["user_id"]
+        access_token = a["token"]
+        expires = a["expires"]
+        access_key = a["key"]
+        access_salt = a["salt"]
+        info = {"user_id": user_id, "access_token": access_token, "access_key": access_key,
+                "access_salt": access_salt, "expires": expires, "refresh_token": refresh_token,
+                "refresh_key": refresh_key, "refresh_salt": refresh_salt}
+        info = str(info)
+
+        if int(user_id) > 0:
+            manage.red.set('user_token_info_' + str(user_id), info)
+            if platform_type == 'mobile':
+                manage.red.set('mobile_access_token_' + str(user_id), access_token)
+                manage.red.expire('mobile_access_token_' + str(user_id), config.access_token_expire)
+
+            elif platform_type == 'web':
+                manage.red.set('web_access_token_' + str(user_id), access_token)
+                manage.red.expire('web_access_token_' + str(user_id), config.access_token_expire)
+
+
+        token={'access_token':access_token,'refresh_token':refresh_token,'expires':expires}
+        return Message.json_mess(0, 'token刷新成功', token)
+
+    except Exception as e:
+        print (e)
+        current_app.logger.error(str(e))
+        return Message.json_mess(17, "刷新token失败", "")
+
+
+
 
 
 
@@ -252,10 +336,14 @@ def token_login(data):
             manage.red.set('user_token_info_'+str(user_id),info)
             if data['platform_type']=='mobile':
                 manage.red.set('mobile_access_token_'+str(user_id),access_token)
+                manage.red.expire('mobile_access_token_'+str(user_id),config.access_token_expire)
                 manage.red.set('mobile_refresh_token_'+str(user_id),refresh_token)
+                manage.red.expire('mobile_refresh_token_' + str(user_id), config.refresh_token_expire)
             elif data['platform_type'] == 'web':
                 manage.red.set('web_access_token_' + str(user_id), access_token)
+                manage.red.expire('web_access_token_' + str(user_id), config.access_token_expire)
                 manage.red.set('web_refresh_token_' + str(user_id), refresh_token)
+                manage.red.expire('web_refresh_token_' + str(user_id), config.refresh_token_expire)
 
 
         res={"access_token":access_token,"refresh_token":refresh_token,"expires":expires}

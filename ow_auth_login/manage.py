@@ -18,7 +18,7 @@ import json
 
 # mail=Mail()
 cur= mydb.Connection(config.db_set['host'] + ":" + config.db_set['port'], config.db_set['db'], config.db_set['name'], config.db_set['password'], 100, 10)
-red = redis.StrictRedis(host=config.redis_set['host'], port=config.redis_set['port'], db=config.redis_set['db'])
+red = redis.StrictRedis(host=config.redis_set['host'], port=config.redis_set['port'], db=config.redis_set['db'],password=config.redis_set['password'])
 
 
 

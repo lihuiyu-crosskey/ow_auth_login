@@ -29,7 +29,7 @@ elif check=='online':
     request_url = auth_verify_url+"/auth_verify/power/verify"
     db_set = {'name': 'root', 'password': 'Admin123456!', 'host': '39.100.138.101', 'port': '3306',
               'db': 'ow_auth'}
-    redis_set = {'host': '149.129.61.116', 'port': '6179', 'password': 'admin123!', 'db': '0'}
+    redis_set = {'host': '39.100.138.101', 'port': '6379', 'password': 'admin123!', 'db': '0'}
 
 elif check=='test':
     access_token_expire = 3600
