@@ -126,7 +126,8 @@ def mobile_get_code(mobile):
 
 def send_sms(nums,message):
     try:
-        mess64= base64.b64encode(message)
+
+        mess64= base64.b64encode(message.encode(encoding="utf-8"))
         messcode=urllib.parse.quote(mess64)
         res={'sid':'710446','mobi':nums,'sign':'fc08d39e714e4355881baf769ec8b940','msg':messcode}
         rs=Message.post_json_request(config.sms_url,res,1)
