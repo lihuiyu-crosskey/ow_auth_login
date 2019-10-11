@@ -80,3 +80,50 @@ def refresh_token():
     except Exception as e:
         current_app.logger.error(e)
         return Message.json_mess(400,"参数错误","")
+
+@logged.route('/user/add', methods=['POST'],endpoint='添加用户')
+def add_user():
+    try:
+        req=request.get_json()
+        return web_ser.add_user(req['password'],req['mobile'],req['nick_name'],req['user_img'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+@logged.route('/user/edit', methods=['POST'],endpoint='编辑用户')
+def edit_user():
+    try:
+        req=request.get_json()
+        return web_ser.edit_user(req['user_id'],req['mobile'],req['nick_name'],req['user_img'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+@logged.route('/user/delete', methods=['POST'],endpoint='删除用户')
+def delete_user():
+    try:
+        req=request.get_json()
+        return web_ser.delete_user(req['user_id'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+@logged.route('/user/password/force/change', methods=['POST'],endpoint='强制修改密码')
+def force_change_password():
+    try:
+        req=request.get_json()
+        return web_ser.force_change_password(req['user_id'],req['password'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+@logged.route('/user/password/change', methods=['POST'],endpoint='修改密码')
+def change_password():
+    try:
+        req=request.get_json()
+        header=request.headers
+        return web_ser.change_password(req['old_password'],req['new_password'],header['access_token'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+

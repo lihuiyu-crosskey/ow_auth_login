@@ -197,18 +197,13 @@ def mobile_reg(password,mobile,nick_name,user_img,code):
         sql='select id from tab_role where type=1 and status!=2 limit 1'
         role=manage.cur.get(sql)
         role_id=role['id']
-        word = str(password)
-        #生产盐，然后将密码和盐拼接一起MD5加密存入数据库
-        salt = gen_salt(6)
-        word = word + str(salt)
-        password_md5 = hashlib.md5(word).hexdigest()
-        password = password_md5
+        new_pass=give_password(password)
         sql='INSERT into tab_user(nick_name,mobile,`password`,role_id,`status`,create_time,salt,user_img,is_real) VALUES (%s,%s,%s,%s,0,now(),%s,%s,0)'
-        user_id=manage.cur.execute_lastrowid(sql,nick_name,mobile,password,role_id,salt,user_img)
-        res={'user_id':user_id,'role_id':role_id,'status':0,'role_type':1}
-        key="user_info_"+str(user_id)
-        #将基础的用户信息存入redis
-        manage.red.set(key,json.dumps(res))
+        user_id=manage.cur.execute_lastrowid(sql,nick_name,mobile,new_pass['password'],role_id,new_pass['salt'],user_img)
+        # res={'user_id':user_id,'role_id':role_id,'status':0,'role_type':1}
+        # key="user_info_"+str(user_id)
+        # #将基础的用户信息存入redis
+        # manage.red.set(key,json.dumps(res))
         return Message.json_mess(0,'注册成功','')
     except Exception as e:
         current_app.logger.error(str(e))
@@ -309,9 +304,120 @@ def refresh_token(token):
         return Message.json_mess(17, "刷新token失败", "")
 
 
+def add_user(password,mobile,nick_name,user_img,role_id):
+    try:
+        manage.cur.reconnect()
+        if int(role_id)<=0:
+            return Message.json_mess(13,"无此权限","")
+        #手机号查重
+        sql='select * from tab_user where mobile=%s and status!=2 limit 1'
+        check_name=manage.cur.get(sql,str(mobile))
+        if check_name:
+            return Message.json_mess(11,"手机号重复","")
+        new_pass=give_password(password)
+        sql='INSERT into tab_user(nick_name,mobile,`password`,role_id,`status`,create_time,salt,user_img,is_real) VALUES (%s,%s,%s,%s,0,now(),%s,%s,0)'
+        user_id=manage.cur.execute_lastrowid(sql,nick_name,mobile,new_pass['password'],role_id,new_pass['salt'],user_img)
+        # res={'user_id':user_id,'role_id':role_id,'status':0,'role_type':1}
+        # key="user_info_"+str(user_id)
+        # #将基础的用户信息存入redis
+        # manage.red.set(key,json.dumps(res))
+        return Message.json_mess(0,'添加成功','')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        #添加时一旦发生错误，回滚
+        sql='update tab_user set status=2 where mobile=%s'
+        manage.cur.execute(sql,mobile)
+        return Message.json_mess(7, '添加失败', '')
+    finally:
+        manage.cur.close()
+
+def edit_user(user_id,mobile,nick_name,user_img,role_id):
+    try:
+        manage.cur.reconnect()
+        if int(role_id)<=0:
+            return Message.json_mess(13,"无此权限","")
+        #手机号查重
+        sql='select * from tab_user where mobile=%s and id!=%s and status!=2 limit 1'
+        check_name=manage.cur.get(sql,str(mobile),user_id)
+        if check_name:
+            return Message.json_mess(11,"手机号重复","")
+        sql='update tab_user set nick_name=%s,mobile=%s,role_id=%s,user_img=%s where id=%s'
+        user_id=manage.cur.execute_lastrowid(sql,nick_name,mobile,role_id,user_img,user_id)
+        return Message.json_mess(0,'编辑成功','')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        #添加时一旦发生错误，回滚
+        sql='update tab_user set status=2 where mobile=%s'
+        manage.cur.execute(sql,mobile)
+        return Message.json_mess(8, '编辑失败', '')
+    finally:
+        manage.cur.close()
+
+def delete_user(user_id):
+    try:
+        manage.cur.reconnect()
+        sql='select * from tab_user where id=%s limit 1'
+        check=manage.cur.get(sql,user_id)
+        if int(check['role_id'])==0:
+            return Message.json_mess(13, '无法删除超级管理员', '')
+        sql='update tab_user set status=2 where id=%s'
+        manage.cur.execute(sql,user_id)
+        return Message.json_mess(0,'删除成功','')
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(9, '删除失败', '')
+    finally:
+        manage.cur.close()
+
+def force_change_password(user_id,password):
+    try:
+        manage.cur.reconnect()
+        new_pass=give_password(password)
+        sql='update tab_user set password=%s,salt=%s where id=%s'
+        manage.cur.execute(sql,new_pass['password'],new_pass['salt'],user_id)
+        return Message.json_mess(0, '修改成功', '')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(8, '编辑失败', '')
+    finally:
+        manage.cur.close()
+
+def change_password(old_password,new_password,token):
+    try:
+        manage.cur.reconnect()
+        # 获取token的body解析出的json
+        body = get_token_body(token)
+        id = body['user_id']
+        sql='select * from tab_user where id=%s and status!=2 limit 1'
+        u=manage.cur.get(sql,id)
+        checkpass=str(old_password)+str(u['salt'])
+        checkpass=hashlib.md5(checkpass).hexdigest()
+        if str(checkpass) == str(u['password']):
+            the_pass=give_password(new_password)
+            sql='update tab_user set password=%s,salt=%s where id=%s'
+            manage.cur.execute(sql,the_pass['password'],the_pass['salt'],id)
+            return Message.json_mess(0, '修改成功', '')
+        else:
+            return Message.json_mess(18, '原始密码不正确', '')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(8, '修改失败', '')
+    finally:
+        manage.cur.close()
 
 
 
+
+def give_password(password):
+    word = str(password)
+    # 生产盐，然后将密码和盐拼接一起MD5加密存入数据库
+    salt = gen_salt(6)
+    word = word + str(salt)
+    password_md5 = hashlib.md5(word).hexdigest()
+    password = password_md5
+    res={'password':password,'salt':salt}
+    return res
 
 
 
