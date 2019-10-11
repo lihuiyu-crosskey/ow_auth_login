@@ -12,6 +12,7 @@ import logging
 import redis
 import config
 from flask_cors import *
+from app.Messages.mess_handler import Message
 import json
 
 
@@ -80,15 +81,20 @@ CORS(app, supports_credentials=True)
 app.register_blueprint(logged)
 app.register_blueprint(beforeLogin)
 app.register_blueprint(server)
+
+apis=[]
 for i,val in enumerate(app.url_map._rules):
-    # print(i)
-    print(val)
-    # print(val.endpoint)
-    test=str(val.endpoint).split('.')
-    if len(test)>1:
+    power_code=val.rule
+    power=str(val.endpoint).split('.')
+    if len(power)>1:
+        power_mark=power[0]
+        power_name=power[1]
+        a={'power_name':power_name,'power_code':power_code,'power_mark':power_mark}
+        apis.append(a)
 
-        print(test[1])
-
-
+final_apis={'apis':apis}
+print(final_apis)
+check=Message.post_json_request(config.save_apis_url,final_apis,2)
+print(check)
 
 
