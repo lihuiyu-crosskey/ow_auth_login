@@ -406,6 +406,294 @@ def change_password(old_password,new_password,token):
     finally:
         manage.cur.close()
 
+def user_data(nick_name,mobile,role_id, page_index, page_size):
+    try:
+        page_size = int(page_size)
+        page_index = (int(page_index) - 1) * int(page_size)
+        real_name_sql = ''
+        if nick_name != '':
+            real_name_sql = " and a.nick_name like '%%" + str(nick_name) + "%%' "
+        mobile_sql = ''
+        if mobile != '':
+            mobile_sql = " and a.mobile like '%%" + str(mobile) + "%%' "
+        role_id_sql = ''
+        if int(role_id) >=0:
+            role_id_sql = ' and a.role_id=' + str(role_id)
+
+
+        sql = "SELECT a.id,a.nick_name,mobile,role_id,case when a.role_id = 0 then '超级管理员' else b.role_name end as role_name,a.create_time FROM tab_user a LEFT JOIN tab_role b on a.role_id=b.id WHERE a.`status`!=2 "+real_name_sql+mobile_sql+role_id_sql+" ORDER BY a.create_time DESC LIMIT %s,%s"
+        data = manage.cur.query(sql, page_index, page_size)
+        sql_count = "SELECT count(1) as count FROM tab_user a LEFT JOIN tab_role b on a.role_id=b.id WHERE a.`status`!=2 "+real_name_sql+mobile_sql+role_id_sql
+        count = manage.cur.get(sql_count)
+        page_count = count['count']
+        data = {'data_info': data, 'page_count': page_count}
+        return Message.json_mess(0, "查询成功", data)
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(10, '查询失败', '')
+
+
+
+
+def add_role(role_name):
+    try:
+        manage.cur.reconnect()
+        sql='insert into tab_role(role_name,status,type) values (%s,0,0)'
+        manage.cur.execute(sql,role_name)
+        return Message.json_mess(0, '添加成功', '')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(7, '添加失败', '')
+    finally:
+        manage.cur.close()
+
+def edit_role(role_id,role_name):
+    try:
+        manage.cur.reconnect()
+        sql='select * from tab_role where role_name=%s and id!=%s and status!=2 limit 1'
+        check=manage.cur.get(sql,role_name,role_id)
+        if check:
+            return Message.json_mess(11,"角色名称重复","")
+        sql='update tab_role set role_name=%s where id=%s'
+        manage.cur.execute(sql,role_name,role_id)
+        return Message.json_mess(0,'修改成功','')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(8, '修改失败', '')
+    finally:
+        manage.cur.close()
+
+def delete_role(role_id):
+    try:
+        manage.cur.reconnect()
+        sql='update tab_role set status=2 where id=%s'
+        manage.cur.execute(sql,role_id)
+        return Message.json_mess(0,'删除成功','')
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(9, '删除失败', '')
+    finally:
+        manage.cur.close()
+
+def role_data(role_name,page_index,page_size):
+    try:
+        manage.cur.reconnect()
+        page_size = int(page_size)
+        page_index = (int(page_index) - 1) * int(page_size)
+        name_sql = ''
+        if role_name != '':
+            name_sql = " and role_name like '%%" + str(role_name) + "%%' "
+        sql = "select * from tab_role where status!=2 "+name_sql+" order by id desc limit %s,%s"
+        data = manage.cur.query(sql, page_index, int(page_size))
+        sql_count = "select count(1) as count from tab_role where status!=2"+name_sql
+        count = manage.cur.get(sql_count)
+        page_count = count['count']
+        data = {'data_info': data, 'page_count': page_count}
+        return Message.json_mess(0, "查询成功", data)
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(10, "查询失败", "")
+    finally:
+        manage.cur.close()
+
+
+def add_power_group(name):
+    try:
+        manage.cur.reconnect()
+        sql='insert into tab_power_group(name) values (%s)'
+        manage.cur.execute(sql,name)
+        return Message.json_mess(0, '添加成功', '')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(7, '添加失败', '')
+    finally:
+        manage.cur.close()
+
+def edit_power_group(id,name):
+    try:
+        manage.cur.reconnect()
+        sql='select * from tab_power_group where name=%s and id!=%s  limit 1'
+        check=manage.cur.get(sql,name,id)
+        if check:
+            return Message.json_mess(11,"权限组名称重复","")
+        sql='update tab_power_group set name=%s where id=%s'
+        manage.cur.execute(sql,name,id)
+        return Message.json_mess(0,'修改成功','')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(8, '修改失败', '')
+    finally:
+        manage.cur.close()
+
+def delete_power_group(id):
+    try:
+        manage.cur.reconnect()
+        sql='delete from tab_power_group where id=%s'
+        manage.cur.execute(sql,id)
+        return Message.json_mess(0,'删除成功','')
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(9, '删除失败', '')
+    finally:
+        manage.cur.close()
+
+def power_group_data(name,page_index,page_size):
+    try:
+        manage.cur.reconnect()
+        page_size = int(page_size)
+        page_index = (int(page_index) - 1) * int(page_size)
+        name_sql = ''
+        if name != '':
+            name_sql = " where name like '%%" + str(name) + "%%' "
+        sql = "select * from tab_power_group "+name_sql+"  order by id desc  limit %s,%s"
+        data = manage.cur.query(sql, page_index, int(page_size))
+        sql_count = "select count(1) as count from tab_power_group "+name_sql
+        count = manage.cur.get(sql_count)
+        page_count = count['count']
+        data = {'data_info': data, 'page_count': page_count}
+        return Message.json_mess(0, "查询成功", data)
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(10, "查询失败", "")
+    finally:
+        manage.cur.close()
+
+
+def delete_power(id):
+    try:
+        manage.cur.reconnect()
+        sql='delete from tab_power where id=%s'
+        manage.cur.execute(sql,id)
+        return Message.json_mess(0,'删除成功','')
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(9, '删除失败', '')
+    finally:
+        manage.cur.close()
+
+def power_data(power_name,power_code,power_mark,type,page_index,page_size):
+    try:
+        manage.cur.reconnect()
+        page_size = int(page_size)
+        page_index = (int(page_index) - 1) * int(page_size)
+        name_sql = ''
+        if power_name != '':
+            name_sql = " and power_name like '%%" + str(power_name) + "%%' "
+        code_sql=''
+        if power_code!='':
+            code_sql=" and power_code like '%%"+str(power_code)+"%%'"
+        mark_sql=''
+        if power_mark!='':
+            mark_sql=" and power_mark ='"+power_mark+"'"
+        type_sql=''
+        if int(type)>0:
+            type_sql=" and type="+type
+        sql = "select * from tab_power_group where 0=0  "+name_sql+code_sql+mark_sql+type_sql+"  order by id desc  limit %s,%s"
+        data = manage.cur.query(sql, page_index, int(page_size))
+        sql_count = "select count(1) as count from tab_power_group "+name_sql+code_sql+mark_sql+type_sql
+        count = manage.cur.get(sql_count)
+        page_count = count['count']
+        data = {'data_info': data, 'page_count': page_count}
+        return Message.json_mess(0, "查询成功", data)
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(10, "查询失败", "")
+    finally:
+        manage.cur.close()
+
+
+def add_role_power_group(role_id,power_group_ids):
+    try:
+        manage.cur.reconnect()
+        sql='delete from tab_role_power_group where role_id=%s'
+        manage.cur.execute(sql,role_id)
+        insert_sql = ""
+        if power_group_ids:
+            for power_group_id in power_group_ids:
+                if power_group_id>0:
+                    insert_sql=insert_sql+" ("+str(role_id)+","+str(power_group_id)+"),"
+
+            insert_sql = insert_sql[0:len(insert_sql) - 1]
+            other_sql = "insert into tab_role_power_group(role_id,power_group_id) values " + insert_sql
+            manage.cur.execute(other_sql)
+
+
+        return Message.json_mess(0, '添加成功', '')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(7, '添加失败', '')
+    finally:
+        manage.cur.close()
+
+def role_power_group_data(role_id,page_index,page_size):
+    try:
+        manage.cur.reconnect()
+        page_size = int(page_size)
+        page_index = (int(page_index) - 1) * int(page_size)
+        data=''
+        if int(role_id) > 0:
+            sql = 'select role_id,power_group_id from tab_role_power_group where role_id=%s limit %s,%s'
+            data = manage.cur.query(sql, role_id, page_index, page_size)
+            sql_count = """SELECT count(1) as count FROM tab_role_power_group where role_id=%s """
+            count = manage.cur.get(sql_count, role_id)
+            page_count = count['count']
+            data = {'data_info': data, 'page_count': page_count}
+        return Message.json_mess(0,"查询成功",data)
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(10, '查询失败', '')
+    finally:
+        manage.cur.close()
+
+
+def add_power_group_power(power_group_id, power_ids):
+    try:
+        manage.cur.reconnect()
+        sql = 'delete from tab_power_group_power where power_group_id=%s'
+        manage.cur.execute(sql, power_group_id)
+        insert_sql = ""
+        if power_ids:
+            for power_id in power_ids:
+                if power_id > 0:
+                    insert_sql = insert_sql + " (" + str(power_group_id) + "," + str(power_id) + "),"
+
+            insert_sql = insert_sql[0:len(insert_sql) - 1]
+            other_sql = "insert into tab_power_group_power(power_group_id,power_id) values " + insert_sql
+            manage.cur.execute(other_sql)
+
+        return Message.json_mess(0, '添加成功', '')
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(7, '添加失败', '')
+    finally:
+        manage.cur.close()
+
+
+def power_group_power_data(power_group_id, page_index, page_size):
+    try:
+        manage.cur.reconnect()
+        page_size = int(page_size)
+        page_index = (int(page_index) - 1) * int(page_size)
+        data = ''
+        if int(power_group_id) > 0:
+            sql = 'select power_group_id,power_id from tab_power_group_power where power_group_id=%s limit %s,%s'
+            data = manage.cur.query(sql, power_group_id, page_index, page_size)
+            sql_count = """SELECT count(1) as count FROM tab_power_group_power where power_group_id=%s """
+            count = manage.cur.get(sql_count, power_group_id)
+            page_count = count['count']
+            data = {'data_info': data, 'page_count': page_count}
+        return Message.json_mess(0, "查询成功", data)
+
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return Message.json_mess(10, '查询失败', '')
+    finally:
+        manage.cur.close()
+
 
 
 

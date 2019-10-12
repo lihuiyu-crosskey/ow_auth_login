@@ -127,3 +127,142 @@ def change_password():
         current_app.logger.error(e)
         return Message.json_mess(400,"参数错误","")
 
+@logged.route('/user/data', methods=['POST'],endpoint='用户列表')
+def user_data():
+    try:
+        req=request.get_json()
+        return web_ser.user_data(req['nick_name'],req['mobile'],req['role_id'],req['page_index'],req['page_size'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+
+@logged.route('/role/add', methods=['POST'], endpoint='添加角色')
+def add_role():
+    try:
+        req = request.get_json()
+        return web_ser.add_role(req['role_name'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/role/edit', methods=['POST'], endpoint='编辑角色')
+def edit_role():
+    try:
+        req = request.get_json()
+        return web_ser.edit_role(req['role_id'],req['role_name'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/role/delete', methods=['POST'], endpoint='删除角色')
+def delete_role():
+    try:
+        req = request.get_json()
+        return web_ser.delete_role(req['role_id'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/role/data', methods=['POST'],endpoint='角色列表')
+def role_data():
+    try:
+        req=request.get_json()
+        return web_ser.role_data(req['role_name'],req['page_index'],req['page_size'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+
+@logged.route('/power_group/add', methods=['POST'], endpoint='添加权限组')
+def add_power_group():
+    try:
+        req = request.get_json()
+        return web_ser.add_power_group(req['power_group_name'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/power_group/edit', methods=['POST'], endpoint='编辑权限组')
+def edit_power_group():
+    try:
+        req = request.get_json()
+        return web_ser.edit_power_group(req['power_group_id'],req['power_group_name'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/power_group/delete', methods=['POST'], endpoint='删除权限组')
+def delete_power_group():
+    try:
+        req = request.get_json()
+        return web_ser.delete_power_group(req['power_group_id'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/power_group/data', methods=['POST'],endpoint='权限组列表')
+def power_group_data():
+    try:
+        req=request.get_json()
+        return web_ser.power_group_data(req['power_group_name'],req['page_index'],req['page_size'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+@logged.route('/power/delete', methods=['POST'], endpoint='删除权限')
+def delete_power():
+    try:
+        req = request.get_json()
+        return web_ser.delete_power(req['power_id'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/power/data', methods=['POST'],endpoint='权限列表')
+def power_data():
+    try:
+        req=request.get_json()
+        return web_ser.power_data(req['power_name'],req['power_code'],req['power_mark'],req['type'],req['page_index'],req['page_size'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400,"参数错误","")
+
+
+@logged.route('/role/power_group/add', methods=['POST'], endpoint='添加角色权限组关系')
+def add_role_power_group():
+    try:
+        req = request.get_json()
+        return web_ser.add_role_power_group(req['role_id'],req['power_group_ids'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+@logged.route('/role/power_group/data', methods=['POST'], endpoint='角色权限组关系列表')
+def role_power_group_data():
+    try:
+        req = request.get_json()
+        return web_ser.role_power_group_data(req['role_id'],req['page_index'],req['page_size'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+
+@logged.route('/power_group/power/add', methods=['POST'], endpoint='添加权限组权限关系')
+def add_power_group_power():
+    try:
+        req = request.get_json()
+        return web_ser.add_power_group_power(req['power_group_id'], req['power_ids'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")
+
+
+@logged.route('/power_group/power/data', methods=['POST'], endpoint='权限组权限关系列表')
+def power_group_power_data():
+    try:
+        req = request.get_json()
+        return web_ser.power_group_power_data(req['power_group_id'],req['page_index'],req['page_size'])
+    except Exception as e:
+        current_app.logger.error(e)
+        return Message.json_mess(400, "参数错误", "")

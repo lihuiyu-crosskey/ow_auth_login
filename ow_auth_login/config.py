@@ -8,8 +8,8 @@ import os
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# check=os.getenv('FLASK_CONFIG')
-check='online'
+check=os.getenv('FLASK_CONFIG')
+# check='online'
 if check=='local':
     access_token_expire = 3600
     refresh_token_expire = 2592000
