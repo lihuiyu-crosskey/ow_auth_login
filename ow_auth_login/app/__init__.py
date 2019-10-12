@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from flask import Blueprint
 
-logged = Blueprint('controllers', __name__,url_prefix='/auth_login')
+logged = Blueprint('logged', __name__,url_prefix='/auth_login')
 beforeLogin=Blueprint('beforeLogin',__name__,url_prefix='/auth_login')
 server=Blueprint('server', __name__,url_prefix='/auth_login/server')
 
